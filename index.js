@@ -1,22 +1,36 @@
 const express = require('express');
+const cookieParser = require('cookie-parser');
 
-const urlRoute = require('./routes/urlRouter');
 const { connectToMongoDB } = require("./connection");
 const URL = require("./model/urlModel");
-const staticRoute = require("./routes/staticRouter");
 const path = require("path");
+const { restrictToLoggedinUserOnly, checkAuth } = require("./middleware/auth")
+
+const urlRoute = require('./routes/urlRouter');
+const staticRoute = require("./routes/staticRouter");
+const userRoute = require("./routes/userRouter");
+
 
 
 
 const app = express();
-const PORT = 8000;
+const PORT = 7000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-connectToMongoDB("mongodb://localhost:27017/link-shortner").then(console.log("DB Connected"));
 app.set("view engine", "ejs");
+app.use(cookieParser());
+connectToMongoDB("mongodb://localhost:27017/link-shortner").then(console.log("DB Connected"));
 
-app.use("/url", urlRoute);
-app.use("/", staticRoute);
+// app.set("view engine", "ejs");
+
+app.use("/url",
+    restrictToLoggedinUserOnly,
+    urlRoute);
+app.use("/",
+    checkAuth,
+    staticRoute);
+app.use("/user", userRoute);
+
 app.set("views", path.resolve("./view"));
 
 

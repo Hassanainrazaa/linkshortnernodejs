@@ -12,7 +12,11 @@ const urlSchema = new mongoose.Schema({
     },
     visitHistory: [{
         timestamp: { type: Number } // If this is a custom timestamp field
-    }]
+    }],
+    createdBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "users"
+    }
 },
     { timestamps: true } // This will add createdAt and updatedAt automatically
 );
