@@ -26,6 +26,15 @@ connectToMongoDB("mongodb://localhost:27017/link-shortner").then(console.log("DB
 app.use("/url",
     restrictToLoggedinUserOnly,
     urlRoute);
+
+// app.get("/login", (req, res) => {
+//     if (req.user) return res.redirect("/"); // If already logged in, redirect to home
+//     res.render("login");
+// });
+app.use((req, res, next) => {
+    if (req.path === "/login" || req.path === "/signup") return next(); // Skip auth for login and signup
+    checkAuth(req, res, next); // Apply checkAuth for all other routes
+});
 app.use("/",
     checkAuth,
     staticRoute);
